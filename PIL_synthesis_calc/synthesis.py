@@ -23,19 +23,35 @@ class Chemical:
                  pKa: np.single,
                  mass: np.single = None,
                  density: np.single = None,
-                 volume: np.single = None):
+                 volume: np.single = None,
+                 stoic: np.single = 1):
 
         self.molweight = np.single(molweight)  # Molecular weight in g/mol
         # If wt% concentration is given in whole values, make a decimal for ease of calculation
         if conc is not None and conc > 1:
-            self.conc = np.single(conc/100)  # Concentration in wt%
+            self.conc = np.single(conc / 100)  # Concentration in wt%
         else:
             self.conc = np.single(conc)  # Concentration in wt%
         self.pKa = np.single(pKa)
         self.density = np.single(density)
-        self.mass = np.single(mass)
+        if mass is not None:
+            self.mass = np.single(mass)
+            self.volume = np.single(self.mass / self.density)
+        elif volume is not None:
+            self.volume = np.single(volume)
+            if density is not None:
+                self.density = np.single(density)
+                self.mass = np.single(self.volume * self.density)
+            else:
+                print("Warning: Density is being approximated. Please provide a density or a")
+                self.density = self.molweight / (
+                        (self.acid.stoic * self.acid.molweight) / (self.acid.conc * self.acid.density) +
+                        (self.base.stoic * self.base.molweight) / (self.base.conc * self.base.density))
+                self.mass = (self.density * self.volume)
+        else:
+            raise ValueError("mass or volume must be assigned")
         self.mole = np.single(self.mass / self.molweight)
-        self.volume = np.single(self.mass / self.density)
+        self.stoic = np.short(stoic)
 
     def print_characterisation(self, sigfigs: np.single = 4):
         print(f'Molecular Weight: {np.format_float_positional(self.molweight, precision=sigfigs)} g/mol')
@@ -69,17 +85,16 @@ class Reagent(Chemical):
                  pKa: np.single,
                  density: np.single = None,
                  stoic: np.short = 1):
-        Chemical.__init__(self,
-                          molweight=molweight,
-                          conc=conc,
-                          pKa=pKa,
-                          mass=1,
-                          density=density)
+        super().__init__(molweight=molweight,
+                         conc=conc,
+                         pKa=pKa,
+                         mass=1,
+                         density=density,
+                         stoic=stoic)
         self.mass = None
         self.volume = None
-        self.stoic = np.short(stoic)
 
-    def edit_mole(self, mole):
+    def __edit_mole__(self, mole):
         """
         Edit mole, mass and volume
 
@@ -114,28 +129,13 @@ class PIL(Chemical):
                  stoic: np.short = 1):
         self.acid = acid
         self.base = base
-        Chemical.__init__(self,
-                          molweight=(self.acid.molweight + self.base.molweight),
-                          conc=None,
-                          pKa=(self.base.pKa - self.acid.pKa))
-        if mass is not None:
-            self.mass = np.single(mass)
-            self.volume = np.single(self.mass / self.density)
-        elif volume is not None:
-            self.volume = np.single(volume)
-            if density is not None:
-                self.mass = np.single(self.volume * self.density)
-            else:
-                print("Warning: Density of PIL is being approximated.")
-                self.density = self.molweight / (
-                            (self.acid.stoic * self.acid.molweight) / (self.acid.conc * self.acid.density) + (
-                                self.base.stoic * self.base.molweight) / (self.base.conc * self.base.density))
-                self.mass = (self.density * self.volume)
-        else:
-            raise ValueError("mass or volume must be assigned")
-        self.mole = np.single(self.mass / self.molweight)
-        self.stoic = np.short(stoic)
-
+        super().__init__(molweight=(self.acid.molweight + self.base.molweight),
+                         mass=mass,
+                         volume=volume,
+                         density=density,
+                         conc=None,
+                         pKa=(self.base.pKa - self.acid.pKa),
+                         stoic=stoic)
         self.synthesise()
 
     def synthesise(self):
@@ -144,8 +144,8 @@ class PIL(Chemical):
 
         Determine the mole, mass and volume required of the reagents to obtain the target mole value
         """
-        self.acid.edit_mole(self.mole / self.stoic)
-        self.base.edit_mole(self.mole / self.stoic)
+        self.acid.__edit_mole__(self.mole / self.stoic)
+        self.base.__edit_mole__(self.mole / self.stoic)
 
 
 if __name__ == '__main__':
@@ -158,8 +158,8 @@ if __name__ == '__main__':
                       pKa=-1.38,
                       density=1.42)
 
-    EAN = PIL(base=ethylamine, acid=nitrate, mass=20)
-    # EAN = PIL(ethylamine, nitrate, volume=20)
+    # EAN = PIL(base=ethylamine, acid=nitrate, mass=20)
+    EAN = PIL(ethylamine, nitrate, volume=20)
 
     print("EAN")
     EAN.print_characterisation()
