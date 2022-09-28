@@ -4,10 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="48c27103-c4b5-4340-8e09-5facc5fb148e" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.name" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+    <list default="true" id="48c27103-c4b5-4340-8e09-5facc5fb148e" name="Changes" comment="Improved the inheritence such that all &quot;Chemical&quot;s undergo the same value assignment process">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/synthesis.py" beforeDir="false" afterPath="$PROJECT_DIR$/synthesis.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -68,6 +66,21 @@
       <option name="presentableId" value="Default" />
       <updated>1662980277709</updated>
     </task>
+    <task id="LOCAL-00001" summary="Improved the inheritence such that all &quot;Chemical&quot;s undergo the same value assignment process">
+      <created>1664258166800</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1664258166800</updated>
+    </task>
+    <task id="LOCAL-00002" summary="Improved the inheritence such that all &quot;Chemical&quot;s undergo the same value assignment process">
+      <created>1664258200334</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1664258200334</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -86,5 +99,9 @@
         </entry>
       </map>
     </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="Improved the inheritence such that all &quot;Chemical&quot;s undergo the same value assignment process" />
+    <option name="LAST_COMMIT_MESSAGE" value="Improved the inheritence such that all &quot;Chemical&quot;s undergo the same value assignment process" />
   </component>
 </project>

@@ -18,6 +18,8 @@ class Chemical:
     """
 
     def __init__(self,
+                 name: str,
+                 *,
                  molweight: np.single,
                  conc: np.single,
                  pKa: np.single,
@@ -25,18 +27,25 @@ class Chemical:
                  density: np.single = None,
                  volume: np.single = None,
                  stoic: np.single = 1):
-
+        self.name = name
         self.molweight = np.single(molweight)  # Molecular weight in g/mol
         # If wt% concentration is given in whole values, make a decimal for ease of calculation
         if conc is not None and conc > 1:
             self.conc = np.single(conc / 100)  # Concentration in wt%
         else:
             self.conc = np.single(conc)  # Concentration in wt%
+
         self.pKa = np.single(pKa)
-        self.density = np.single(density)
+
+        # Mass is prioritised, so if a mass is provided, the volume will be over
         if mass is not None:
             self.mass = np.single(mass)
-            self.volume = np.single(self.mass / self.density)
+            if volume is not None:
+                self.volume = np.single(volume)
+                self.density = np.single(self.mass/self.volume)
+            else:
+                self.density = np.single(density)
+                self.volume = np.single(self.mass / self.density)
         elif volume is not None:
             self.volume = np.single(volume)
             if density is not None:
@@ -54,6 +63,7 @@ class Chemical:
         self.stoic = np.short(stoic)
 
     def print_characterisation(self, sigfigs: np.single = 4):
+        print(f'Name: {self.name}')
         print(f'Molecular Weight: {np.format_float_positional(self.molweight, precision=sigfigs)} g/mol')
         print(f'pKa: {np.format_float_positional(self.pKa, precision=sigfigs)}')
         print(f'Density: {np.format_float_positional(self.density, precision=sigfigs)} g/mL')
@@ -80,12 +90,15 @@ class Reagent(Chemical):
     """
 
     def __init__(self,
+                 name: str,
+                 *,
                  molweight: np.single,
                  conc: np.single,
                  pKa: np.single,
                  density: np.single = None,
                  stoic: np.short = 1):
-        super().__init__(molweight=molweight,
+        super().__init__(name=name,
+                         molweight=molweight,
                          conc=conc,
                          pKa=pKa,
                          mass=1,
@@ -121,15 +134,18 @@ class PIL(Chemical):
     """
 
     def __init__(self,
+                 name: str,
                  base: Reagent,
                  acid: Reagent,
+                 *,
                  mass: np.single = None,
                  volume: np.single = None,
                  density: np.single = None,
                  stoic: np.short = 1):
         self.acid = acid
         self.base = base
-        super().__init__(molweight=(self.acid.molweight + self.base.molweight),
+        super().__init__(name=name,
+                         molweight=(self.acid.molweight + self.base.molweight),
                          mass=mass,
                          volume=volume,
                          density=density,
@@ -149,21 +165,20 @@ class PIL(Chemical):
 
 
 if __name__ == '__main__':
-    ethylamine = Reagent(molweight=45.08,
+    ethylamine = Reagent("Ethylamine",
+                         molweight=45.08,
                          conc=0.66,
                          pKa=10.65,
                          density=0.81)
-    nitrate = Reagent(molweight=63.01,
-                      conc=0.7,
-                      pKa=-1.38,
-                      density=1.42)
+    nitric_acid = Reagent("Nitric Acid",
+                          molweight=63.01,
+                          conc=0.7,
+                          pKa=-1.38,
+                          density=1.42)
 
-    # EAN = PIL(base=ethylamine, acid=nitrate, mass=20)
-    EAN = PIL(ethylamine, nitrate, volume=20)
+    # EAN = PIL(base=ethylamine, acid=nitric_acid, mass=20)
+    EAN = PIL("EAN", ethylamine, nitric_acid, volume=20)
 
-    print("EAN")
-    EAN.print_characterisation()
-    print("Ethylamine")
     EAN.base.print_characterisation()
-    print("Nitrate")
     EAN.acid.print_characterisation()
+    EAN.print_characterisation()
