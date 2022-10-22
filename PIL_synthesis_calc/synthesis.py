@@ -4,7 +4,6 @@ Basic PIL synthesis calculator
 """
 
 import numpy as np
-import chem_units
 
 class Chemical:
     """Detail of a generic chemical.
