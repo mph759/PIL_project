@@ -147,9 +147,11 @@ Currently, the scripts are only capable of taking manually input chemical values
 ## Roadmap
 
 - [x] Calculating the required amounts of precursers necessary to synthesise a target mass or volume of PIL
+  - [ ] Implement unit conversion using astropy module
 - [ ] Database of precursor data to pull automatically from, removing need to manually input precursor data
-- [ ] Identification of precursors given requested PIL 
 - [ ] Calculations for serial dilutions to mol% and wt% targets
+- [ ] Identification of precursors given requested PIL 
+
 
 See the [open issues](https://github.com/mph759/PIL_project/issues) for a full list of proposed features (and known issues).
 

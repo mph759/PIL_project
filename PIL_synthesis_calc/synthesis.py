@@ -4,7 +4,7 @@ Basic PIL synthesis calculator
 """
 
 import numpy as np
-
+import chem_units
 
 class Chemical:
     """Detail of a generic chemical.
@@ -31,9 +31,9 @@ class Chemical:
         self.molweight = np.single(molweight)  # Molecular weight in g/mol
         # If wt% concentration is given in whole values, make a decimal for ease of calculation
         if conc is not None and conc > 1:
-            self.conc = np.single(conc / 100)  # Concentration in wt%
+            self.conc = np.single(conc / 100)    # Concentration in wt%
         else:
-            self.conc = np.single(conc)  # Concentration in wt%
+            self.conc = np.single(conc)          # Concentration in wt%
 
         self.pKa = np.single(pKa)
 
@@ -176,8 +176,8 @@ if __name__ == '__main__':
                           pKa=-1.38,
                           density=1.42)
 
-    # EAN = PIL(base=ethylamine, acid=nitric_acid, mass=20)
-    EAN = PIL("EAN", ethylamine, nitric_acid, volume=20)
+    EAN = PIL("EAN", base=ethylamine, acid=nitric_acid, mass=20)
+    # EAN = PIL("EAN", ethylamine, nitric_acid, volume=20)
 
     EAN.base.print_characterisation()
     EAN.acid.print_characterisation()
