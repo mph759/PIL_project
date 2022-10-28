@@ -178,6 +178,6 @@ if __name__ == '__main__':
     EAN = PIL("EAN", base=ethylamine, acid=nitric_acid, mass=20)
     # EAN = PIL("EAN", ethylamine, nitric_acid, volume=20)
 
-    EAN.base.print_characterisation()
-    EAN.acid.print_characterisation()
+    ethylamine.print_characterisation()
+    nitric_acid.print_characterisation()
     EAN.print_characterisation()
