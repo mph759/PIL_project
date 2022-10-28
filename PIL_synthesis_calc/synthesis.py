@@ -33,18 +33,6 @@ class Chemical:
         self.molweight = u.Quantity(np.single(molweight), u.g / u.mol)  # Molecular weight in g/mol
         self.pKa = np.single(pKa)
         self.stoic = np.short(stoic)
-        '''
-        # If wt% concentration is given in whole values, make a decimal for ease of calculation
-        u.def_unit('wtpct', format='wt%')
-        u.def_unit('molpct', represents='wtpct', format='mol%')
-        self.__molar_ratio__ = 
-        wtpct_to_molpct = [(u.wtpct, u.molpct,
-                            lambda x: ())]
-        '''
-        if conc is not None and conc > 1:
-            self.conc = np.single(conc / 100)  # Concentration in wt%
-        else:
-            self.conc = np.single(conc)  # Concentration in wt%
 
         # Mass is prioritised, so if a mass is provided, the volume will be over
         if mass is not None:
@@ -61,20 +49,35 @@ class Chemical:
                 self.density = u.Quantity(np.single(density), u.g / u.ml)
                 self.mass = np.single(self.volume * self.density)
             else:
-                print("Warning: Density is being approximated. Please provide a density or a")
                 self.density = u.Quantity(np.single(1), u.g / u.ml)
+                print(f"Warning: Density of {self.name} is being approximated as {self.density.value} {self.density.unit}\n")
                 self.mass = (self.density * self.volume)
         else:
             raise ValueError("mass or volume must be assigned")
         self.mole = u.Quantity(np.single(self.mass / self.molweight), u.mol)
 
+        # If wt% concentration is given in whole values, make a decimal for ease of calculation
+        wtpct = u.def_unit('wt%')
+        molpct = u.def_unit('mol%')
+
+        if conc is not None:
+            self.__molar_ratio__ = (self.molweight.value * (1 - conc)) / (18 * conc)
+            self.conc = u.Quantity(np.single(1 - (1 * (18 * self.__molar_ratio__) / ((18 * self.__molar_ratio__) + self.molweight.value))), wtpct)
+            '''
+            wtpct_to_molpct = [(wtpct, molpct,
+                                lambda x: (((18 * x) / (self.molweight * (1 - x))) + 1),
+                                lambda x: ()]
+            '''
+
+        else:
+            self.conc = u.Quantity(np.single(None), wtpct)
+
     def print_characterisation(self, sigfigs: np.single = 4):
         print(f'Name: {self.name}')
-        print(
-            f'Molecular Weight: {np.format_float_positional(self.molweight.value, precision=sigfigs)} {self.molweight.unit}')
+        print(f'Molecular Weight: {np.format_float_positional(self.molweight.value, precision=sigfigs)} {self.molweight.unit}')
         print(f'pKa: {np.format_float_positional(self.pKa, precision=sigfigs)}')
         print(f'Density: {np.format_float_positional(self.density.value, precision=sigfigs)} {self.density.unit}')
-        print(f'Concentration: {np.format_float_positional(self.conc * 100, precision=sigfigs)} wt%')
+        print(f'Concentration: {np.format_float_positional(self.conc.value*100, precision=sigfigs)} {self.conc.unit}')
         print(f'Mass: {np.format_float_positional(self.mass.value, precision=sigfigs)} {self.mass.unit}')
         print(f'Mole: {np.format_float_positional(self.mole.value, precision=sigfigs)} {self.mole.unit}')
         print(f'Volume: {np.format_float_positional(self.volume.value, precision=sigfigs)} {self.volume.unit}')
@@ -121,7 +124,7 @@ class Reagent(Chemical):
         Determine the mole, mass and volume required of the reagents to obtain the target mole value
         """
         self.mole = u.Quantity(np.single(self.stoic * mole), u.mol)
-        self.mass = (self.mole * self.molweight) / self.conc
+        self.mass = (self.mole * self.molweight) / self.conc.value
         self.volume = self.mass / self.density
 
 
@@ -170,8 +173,9 @@ class PIL(Chemical):
         self.acid.__edit_mole__(self.mole / self.stoic)
         self.base.__edit_mole__(self.mole / self.stoic)
 
-
 if __name__ == '__main__':
+
+
     ethylamine = Reagent("Ethylamine",
                          molweight=45.08,
                          conc=0.66,
@@ -183,9 +187,10 @@ if __name__ == '__main__':
                           pKa=-1.38,
                           density=1.42)
 
-    EAN = PIL("EAN", base=ethylamine, acid=nitric_acid, mass=20)
-    # EAN = PIL("EAN", ethylamine, nitric_acid, volume=20)
+    # EAN = PIL("EAN", base=ethylamine, acid=nitric_acid, mass=20)
+    EAN = PIL("EAN", ethylamine, nitric_acid, volume=20)
 
     ethylamine.print_characterisation()
     nitric_acid.print_characterisation()
     EAN.print_characterisation()
+
