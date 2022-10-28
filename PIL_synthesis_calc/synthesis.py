@@ -4,7 +4,8 @@ Basic PIL synthesis calculator
 """
 
 import numpy as np
-import chem_units
+from astropy import units as u
+
 
 class Chemical:
     """Detail of a generic chemical.
@@ -27,50 +28,56 @@ class Chemical:
                  density: np.single = None,
                  volume: np.single = None,
                  stoic: np.single = 1):
-        self.name = name
-        self.molweight = np.single(molweight)  # Molecular weight in g/mol
-        # If wt% concentration is given in whole values, make a decimal for ease of calculation
-        if conc is not None and conc > 1:
-            self.conc = np.single(conc / 100)    # Concentration in wt%
-        else:
-            self.conc = np.single(conc)          # Concentration in wt%
 
+        self.name = name
+        self.molweight = u.Quantity(np.single(molweight), u.g / u.mol)  # Molecular weight in g/mol
         self.pKa = np.single(pKa)
+        self.stoic = np.short(stoic)
+        '''
+        # If wt% concentration is given in whole values, make a decimal for ease of calculation
+        u.def_unit('wtpct', format='wt%')
+        u.def_unit('molpct', represents='wtpct', format='mol%')
+        self.__molar_ratio__ = 
+        wtpct_to_molpct = [(u.wtpct, u.molpct,
+                            lambda x: ())]
+        '''
+        if conc is not None and conc > 1:
+            self.conc = np.single(conc / 100)  # Concentration in wt%
+        else:
+            self.conc = np.single(conc)  # Concentration in wt%
 
         # Mass is prioritised, so if a mass is provided, the volume will be over
         if mass is not None:
-            self.mass = np.single(mass)
+            self.mass = u.Quantity(np.single(mass), u.g)
             if volume is not None:
-                self.volume = np.single(volume)
-                self.density = np.single(self.mass/self.volume)
+                self.volume = u.Quantity(np.single(volume), u.ml)
+                self.density = np.single(self.mass / self.volume)
             else:
-                self.density = np.single(density)
-                self.volume = np.single(self.mass / self.density)
+                self.density = u.Quantity(np.single(density), u.g / u.ml)
+                self.volume = u.Quantity(np.single(self.mass / self.density), u.ml)
         elif volume is not None:
-            self.volume = np.single(volume)
+            self.volume = u.Quantity(np.single(volume), u.ml)
             if density is not None:
-                self.density = np.single(density)
+                self.density = u.Quantity(np.single(density), u.g / u.ml)
                 self.mass = np.single(self.volume * self.density)
             else:
                 print("Warning: Density is being approximated. Please provide a density or a")
-                self.density = self.molweight / (
-                        (self.acid.stoic * self.acid.molweight) / (self.acid.conc * self.acid.density) +
-                        (self.base.stoic * self.base.molweight) / (self.base.conc * self.base.density))
+                self.density = u.Quantity(np.single(1), u.g / u.ml)
                 self.mass = (self.density * self.volume)
         else:
             raise ValueError("mass or volume must be assigned")
-        self.mole = np.single(self.mass / self.molweight)
-        self.stoic = np.short(stoic)
+        self.mole = u.Quantity(np.single(self.mass / self.molweight), u.mol)
 
     def print_characterisation(self, sigfigs: np.single = 4):
         print(f'Name: {self.name}')
-        print(f'Molecular Weight: {np.format_float_positional(self.molweight, precision=sigfigs)} g/mol')
+        print(
+            f'Molecular Weight: {np.format_float_positional(self.molweight.value, precision=sigfigs)} {self.molweight.unit}')
         print(f'pKa: {np.format_float_positional(self.pKa, precision=sigfigs)}')
-        print(f'Density: {np.format_float_positional(self.density, precision=sigfigs)} g/mL')
+        print(f'Density: {np.format_float_positional(self.density.value, precision=sigfigs)} {self.density.unit}')
         print(f'Concentration: {np.format_float_positional(self.conc * 100, precision=sigfigs)} wt%')
-        print(f'Mass: {np.format_float_positional(self.mass, precision=sigfigs)} g')
-        print(f'Mole: {np.format_float_positional(self.mole, precision=sigfigs)} mol')
-        print(f'Volume: {np.format_float_positional(self.volume, precision=sigfigs)} mL')
+        print(f'Mass: {np.format_float_positional(self.mass.value, precision=sigfigs)} {self.mass.unit}')
+        print(f'Mole: {np.format_float_positional(self.mole.value, precision=sigfigs)} {self.mole.unit}')
+        print(f'Volume: {np.format_float_positional(self.volume.value, precision=sigfigs)} {self.volume.unit}')
         print()
 
 
@@ -113,9 +120,9 @@ class Reagent(Chemical):
 
         Determine the mole, mass and volume required of the reagents to obtain the target mole value
         """
-        self.mole = np.single(self.stoic * mole)
-        self.mass = np.single((self.mole * self.molweight) / self.conc)
-        self.volume = np.single(self.mass / self.density)
+        self.mole = u.Quantity(np.single(self.stoic * mole), u.mol)
+        self.mass = (self.mole * self.molweight) / self.conc
+        self.volume = self.mass / self.density
 
 
 class PIL(Chemical):
@@ -179,6 +186,6 @@ if __name__ == '__main__':
     EAN = PIL("EAN", base=ethylamine, acid=nitric_acid, mass=20)
     # EAN = PIL("EAN", ethylamine, nitric_acid, volume=20)
 
-    EAN.base.print_characterisation()
-    EAN.acid.print_characterisation()
+    ethylamine.print_characterisation()
+    nitric_acid.print_characterisation()
     EAN.print_characterisation()
