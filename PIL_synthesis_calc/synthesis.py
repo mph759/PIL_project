@@ -6,6 +6,8 @@ Basic PIL synthesis calculator
 import numpy as np
 from astropy import units as u
 
+wtpct = u.def_unit('wt%')
+molpct = u.def_unit('mol%')
 
 class Chemical:
     """Detail of a generic chemical.
@@ -57,9 +59,6 @@ class Chemical:
         self.mole = u.Quantity(np.single(self.mass / self.molweight), u.mol)
 
         # If wt% concentration is given in whole values, make a decimal for ease of calculation
-        wtpct = u.def_unit('wt%')
-        molpct = u.def_unit('mol%')
-
         if conc is not None:
             self.__molar_ratio__ = (self.molweight.value * (1 - conc)) / (18 * conc)
             self.conc = u.Quantity(np.single(1 - (1 * (18 * self.__molar_ratio__) / ((18 * self.__molar_ratio__) + self.molweight.value))), wtpct)
@@ -71,6 +70,18 @@ class Chemical:
 
         else:
             self.conc = u.Quantity(np.single(None), wtpct)
+
+    def wtpct_to_molpct(self):
+        if self.conc.unit == wtpct:
+            self.conc = u.Quantity(18 / (18+self.molweight.value * ((1 / self.conc.value)-1)), molpct)
+        else:
+            print(f"Concentration of {self.name} is already in {self.conc.unit}")
+
+    def molpct_to_wtpct(self):
+        if self.conc.unit == molpct:
+            self.conc = u.Quantity(self.molweight.value/(self.molweight.value - 18 * (1 - 1 / self.conc.value)), wtpct)
+        else:
+            print(f"Concentration of {self.name} is already in {self.conc.unit}")
 
     def print_characterisation(self, sigfigs: np.single = 4):
         print(f'Name: {self.name}')
@@ -193,4 +204,3 @@ if __name__ == '__main__':
     ethylamine.print_characterisation()
     nitric_acid.print_characterisation()
     EAN.print_characterisation()
-
