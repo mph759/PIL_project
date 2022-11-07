@@ -60,27 +60,20 @@ class Chemical:
 
         # If wt% concentration is given in whole values, make a decimal for ease of calculation
         if conc is not None:
-            self.__molar_ratio__ = (self.molweight.value * (1 - conc)) / (18 * conc)
-            self.conc = u.Quantity(np.single(1 - (1 * (18 * self.__molar_ratio__) / ((18 * self.__molar_ratio__) + self.molweight.value))), wtpct)
-            '''
-            wtpct_to_molpct = [(wtpct, molpct,
-                                lambda x: (((18 * x) / (self.molweight * (1 - x))) + 1),
-                                lambda x: ()]
-            '''
-
+            self.conc = u.Quantity(conc, wtpct)
         else:
             self.conc = u.Quantity(np.single(None), wtpct)
 
-    def wtpct_to_molpct(self):
+    def wtpct_to_molpct(self, *, internal:bool = False):
         if self.conc.unit == wtpct:
             self.conc = u.Quantity(18 / (18+self.molweight.value * ((1 / self.conc.value)-1)), molpct)
-        else:
+        elif not internal:
             print(f"Concentration of {self.name} is already in {self.conc.unit}")
 
-    def molpct_to_wtpct(self):
+    def molpct_to_wtpct(self, *, internal:bool = False):
         if self.conc.unit == molpct:
             self.conc = u.Quantity(self.molweight.value/(self.molweight.value - 18 * (1 - 1 / self.conc.value)), wtpct)
-        else:
+        elif not internal:
             print(f"Concentration of {self.name} is already in {self.conc.unit}")
 
     def print_characterisation(self, sigfigs: np.single = 4):
@@ -135,7 +128,12 @@ class Reagent(Chemical):
         Determine the mole, mass and volume required of the reagents to obtain the target mole value
         """
         self.mole = u.Quantity(np.single(self.stoic * mole), u.mol)
-        self.mass = (self.mole * self.molweight) / self.conc.value
+        if self.conc.unit == molpct:
+            self.mass = (self.mole * self.molweight) / self.conc.value
+        else:
+            self.wtpct_to_molpct(internal=True)
+            self.mass = (self.mole * self.molweight) / self.conc.value
+            self.molpct_to_wtpct(internal=True)
         self.volume = self.mass / self.density
 
 
@@ -162,6 +160,7 @@ class PIL(Chemical):
                  mass: np.single = None,
                  volume: np.single = None,
                  density: np.single = None,
+                 conc: np.single = None,
                  stoic: np.short = 1):
         self.acid = acid
         self.base = base
@@ -170,7 +169,7 @@ class PIL(Chemical):
                          mass=mass,
                          volume=volume,
                          density=density,
-                         conc=None,
+                         conc=conc,
                          pKa=(self.base.pKa - self.acid.pKa),
                          stoic=stoic)
         self.synthesise()
@@ -198,8 +197,8 @@ if __name__ == '__main__':
                           pKa=-1.38,
                           density=1.42)
 
-    # EAN = PIL("EAN", base=ethylamine, acid=nitric_acid, mass=20)
-    EAN = PIL("EAN", ethylamine, nitric_acid, volume=20)
+    EAN = PIL("EAN", base=ethylamine, acid=nitric_acid, mass=20)
+    # EAN = PIL("EAN", ethylamine, nitric_acid, volume=20)
 
     ethylamine.print_characterisation()
     nitric_acid.print_characterisation()
