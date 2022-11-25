@@ -9,12 +9,13 @@ from astropy import units as u
 wtpct = u.def_unit('wt%')
 molpct = u.def_unit('mol%')
 
+
 class Chemical:
     """Detail of a generic chemical.
     If both a mass and volume are provided, the mass value will be accepted and override the volume
     Additional details on the function
 
-    :ivar molweight: Molecular weight in g/mol
+    :ivar mol_weight: Molecular weight in g/mol
     :ivar conc: Concentration in wt%
     :ivar pKa: pKa of the chemical
     :ivar density: Density in g/mL
@@ -23,16 +24,16 @@ class Chemical:
     def __init__(self,
                  name: str,
                  *,
-                 molweight: np.single,
-                 conc: np.single,
+                 mol_weight: np.single,
+                 concentration: np.single,
                  pKa: np.single,
                  mass: np.single = None,
-                 density: np.single = None,
+                 density: np.single = 1,
                  volume: np.single = None,
                  stoic: np.single = 1):
 
         self.name = name
-        self.molweight = u.Quantity(np.single(molweight), u.g / u.mol)  # Molecular weight in g/mol
+        self.mol_weight = u.Quantity(np.single(mol_weight), u.g / u.mol)  # Molecular weight in g/mol
         self.pKa = np.single(pKa)
         self.stoic = np.short(stoic)
 
@@ -47,41 +48,62 @@ class Chemical:
                 self.volume = u.Quantity(np.single(self.mass / self.density), u.ml)
         elif volume is not None:
             self.volume = u.Quantity(np.single(volume), u.ml)
-            if density is not None:
-                self.density = u.Quantity(np.single(density), u.g / u.ml)
-                self.mass = np.single(self.volume * self.density)
-            else:
-                self.density = u.Quantity(np.single(1), u.g / u.ml)
-                print(f"Warning: Density of {self.name} is being approximated as {self.density.value} {self.density.unit}\n")
-                self.mass = (self.density * self.volume)
+            self.density = u.Quantity(np.single(density), u.g / u.ml)
+            if density == 1:
+                print(
+                    f"Warning: Density of {self.name} is being approximated as {self.density.value} {self.density.unit}\n")
+            self.mass = (self.density * self.volume)
         else:
             raise ValueError("mass or volume must be assigned")
-        self.mole = u.Quantity(np.single(self.mass / self.molweight), u.mol)
+        self.mole = u.Quantity(np.single(self.mass / self.mol_weight), u.mol)
 
         # If wt% concentration is given in whole values, make a decimal for ease of calculation
-        if conc is not None:
-            self.conc = u.Quantity(conc, wtpct)
+        if concentration is not None:
+            self.conc = u.Quantity(concentration, wtpct)
         else:
             self.conc = u.Quantity(np.single(None), wtpct)
 
-    def wtpct_to_molpct(self, *, internal:bool = False):
-        if self.conc.unit == wtpct:
-            self.conc = u.Quantity(18 / (18+self.molweight.value * ((1 / self.conc.value)-1)), molpct)
-        elif not internal:
-            print(f"Concentration of {self.name} is already in {self.conc.unit}")
+    def get_mol_wieght(self):
+        return self.mol_weight
 
-    def molpct_to_wtpct(self, *, internal:bool = False):
-        if self.conc.unit == molpct:
-            self.conc = u.Quantity(self.molweight.value/(self.molweight.value - 18 * (1 - 1 / self.conc.value)), wtpct)
+    def get_conc(self):
+        return self.conc
+
+    def get_pKa(self):
+        return self.pKa
+
+    def get_mass(self):
+        return self.mass
+
+    def get_density(self):
+        return density
+
+    def get_volume(self):
+        return self.volume
+
+    def get_stoic(self):
+        return self.stoic
+
+    def wtpct_to_molpct(self, *, internal: bool = False):
+        if self.conc.unit == wtpct:
+            self.conc = u.Quantity(18 / (18 + self.get_mol_weight().value * ((1 / self.get_conc().value) - 1)), molpct)
         elif not internal:
-            print(f"Concentration of {self.name} is already in {self.conc.unit}")
+            print(f"Concentration of {self.name} is already in {self.conc.unit}, needs to be {wtpct}")
+
+    def molpct_to_wtpct(self, *, internal: bool = False):
+        if self.conc.unit == molpct:
+            self.conc = u.Quantity(self.get_mol_weight().value / (self.get_mol_weight().value - 18 * (1 - 1 / self.get_conc().value)),
+                                   wtpct)
+        elif not internal:
+            print(f"Concentration of {self.name} is already in {self.conc.unit}, needs to be {molpct}")
 
     def print_characterisation(self, sigfigs: np.single = 4):
         print(f'Name: {self.name}')
-        print(f'Molecular Weight: {np.format_float_positional(self.molweight.value, precision=sigfigs)} {self.molweight.unit}')
+        print(
+            f'Molecular Weight: {np.format_float_positional(self.mol_weight.value, precision=sigfigs)} {self.mol_weight.unit}')
         print(f'pKa: {np.format_float_positional(self.pKa, precision=sigfigs)}')
         print(f'Density: {np.format_float_positional(self.density.value, precision=sigfigs)} {self.density.unit}')
-        print(f'Concentration: {np.format_float_positional(self.conc.value*100, precision=sigfigs)} {self.conc.unit}')
+        print(f'Concentration: {np.format_float_positional(self.conc.value * 100, precision=sigfigs)} {self.conc.unit}')
         print(f'Mass: {np.format_float_positional(self.mass.value, precision=sigfigs)} {self.mass.unit}')
         print(f'Mole: {np.format_float_positional(self.mole.value, precision=sigfigs)} {self.mole.unit}')
         print(f'Volume: {np.format_float_positional(self.volume.value, precision=sigfigs)} {self.volume.unit}')
@@ -106,14 +128,14 @@ class Reagent(Chemical):
     def __init__(self,
                  name: str,
                  *,
-                 molweight: np.single,
-                 conc: np.single,
+                 mol_weight: np.single,
+                 concentration: np.single,
                  pKa: np.single,
                  density: np.single = None,
                  stoic: np.short = 1):
         super().__init__(name=name,
-                         molweight=molweight,
-                         conc=conc,
+                         mol_weight=mol_weight,
+                         concentration=concentration,
                          pKa=pKa,
                          mass=1,
                          density=density,
@@ -128,12 +150,12 @@ class Reagent(Chemical):
         Determine the mole, mass and volume required of the reagents to obtain the target mole value
         """
         self.mole = u.Quantity(np.single(self.stoic * mole), u.mol)
-        if self.conc.unit == molpct:
-            self.mass = (self.mole * self.molweight) / self.conc.value
+        if self.conc.unit == wtpct:
+            self.mass = (self.mole * self.mol_weight) / self.conc.value
         else:
-            self.wtpct_to_molpct(internal=True)
-            self.mass = (self.mole * self.molweight) / self.conc.value
             self.molpct_to_wtpct(internal=True)
+            self.mass = (self.mole * self.mol_weight) / self.conc.value
+            self.wtpct_to_molpct(internal=True)
         self.volume = self.mass / self.density
 
 
@@ -160,16 +182,16 @@ class PIL(Chemical):
                  mass: np.single = None,
                  volume: np.single = None,
                  density: np.single = None,
-                 conc: np.single = None,
+                 concentration: np.single = None,
                  stoic: np.short = 1):
         self.acid = acid
         self.base = base
         super().__init__(name=name,
-                         molweight=(self.acid.molweight + self.base.molweight),
+                         mol_weight=(self.acid.mol_weight + self.base.mol_weight),
                          mass=mass,
                          volume=volume,
                          density=density,
-                         conc=conc,
+                         concentration=concentration,
                          pKa=(self.base.pKa - self.acid.pKa),
                          stoic=stoic)
         self.synthesise()
@@ -183,17 +205,16 @@ class PIL(Chemical):
         self.acid.__edit_mole__(self.mole / self.stoic)
         self.base.__edit_mole__(self.mole / self.stoic)
 
+
 if __name__ == '__main__':
-
-
     ethylamine = Reagent("Ethylamine",
-                         molweight=45.08,
-                         conc=0.66,
+                         mol_weight=45.08,
+                         concentration=0.66,
                          pKa=10.65,
                          density=0.81)
     nitric_acid = Reagent("Nitric Acid",
-                          molweight=63.01,
-                          conc=0.7,
+                          mol_weight=63.01,
+                          concentration=0.7,
                           pKa=-1.38,
                           density=1.42)
 
