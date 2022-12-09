@@ -3,46 +3,47 @@ SELECT *
 FROM public."Precursors"
 WHERE id = 'EA';
 
-Works, calls ethylamine
+#Works, calls ethylamine
 
 SELECT *
 FROM public."Precursors"
 WHERE id = 'EA'
 OR id = 'N';
 
-Works, calls both ethylamine and nitric acid
+#Works, calls both ethylamine and nitric acid
 
 SELECT “MW”
 FROM public.”Precursors”
 WHERE id = ‘EA’
 OR id = ‘N’;
 
-Calls only the MW column of both EA and N
+#Calls only the MW column of both EA and N
 
 SELECT sum("MW") AS EAN
 FROM public."Precursors"
 WHERE id = 'EA'
 OR id = 'N';
 
-Finds the MW of EAN
+#Finds the MW of EAN
 
 SELECT (20/sum("MW")) AS molEAN
 FROM public."Precursors"
 WHERE id = 'EA'
 OR id = 'N';
 
-Finds the number of mol in 20g of EAN
+#Finds the number of mol in 20g of EAN
+
 SELECT "ID", "MW"
 FROM public."ILs" 
 WHERE "ID" = 'EAN'
 
-Calls the acronym and molecular weight of EAN
+#Calls the acronym and molecular weight of EAN
 
 SELECT (20/"MW") AS molEAN
 FROM public."ILs" 
 WHERE "ID" = 'EAN'
 
-Returns the number of mol in 20g of EAN
+#Returns the number of mol in 20g of EAN
 
 SELECT "id", "MW", (SELECT(20/"MW") FROM public."ILs" WHERE "ID" = 'EAN') AS mol, 
 		(("MW"*(SELECT(20/"MW") FROM public."ILs" WHERE "ID" = 'EAN'))/"concentration") AS mass
@@ -50,7 +51,7 @@ FROM public."Precursors"
 WHERE id = 'EA'
 OR id = 'N';
 
-Returns id, molecular weight, mol in 20g and mass of each precursor for 20g synthesis
+#Returns id, molecular weight, mol in 20g and mass of each precursor for 20g synthesis
 
 
 SELECT "id", "MW", ROUND((SELECT(20/"MW") FROM public."ILs" WHERE "ID" = 'EAN'),2) AS mol, 
@@ -59,4 +60,4 @@ FROM public."Precursors"
 WHERE id = 'EA'
 OR id = 'N';
 
-Returns the previous results above but rounded to 2 decimal places.
+#Returns the previous results above but rounded to 2 decimal places.
