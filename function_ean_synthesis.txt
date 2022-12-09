@@ -1,0 +1,14 @@
+#create function
+#add variables
+	#numeric, in, final_mass
+	#numeric, out, mass
+
+#code
+SELECT ROUND((("MW"*(SELECT(final_mass/"MW") FROM public."ILs" WHERE "ID" = 'EAN'))/"concentration"),2) AS mass
+FROM public."Precursors"
+WHERE id = 'EA'
+OR id = 'N';
+
+
+#options
+	#returns a set? yes
