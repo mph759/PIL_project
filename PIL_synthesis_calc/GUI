@@ -1,0 +1,206 @@
+import customtkinter
+import webbrowser
+
+customtkinter.set_appearance_mode("dark")
+customtkinter.set_default_color_theme("dark-blue")
+
+root = customtkinter.CTk()
+root.geometry("600x500")
+root.title("PIL Calculator")
+
+# Create a font object
+font = customtkinter.CTkFont(family="Roboto", size=24)
+bold_font = customtkinter.CTkFont(family="Roboto", size=12, weight="bold")
+
+# Function to show the selected screen
+def show_screen(screen):
+    if screen == "Info":
+        info_frame.pack(pady=20, padx=10)
+        pil_frame.pack_forget()
+        conversion_frame.pack_forget()
+        properties_frame.pack_forget()
+    elif screen == "PIL Synthesis":
+        info_frame.pack_forget()
+        pil_frame.pack(pady=20, padx=10)
+        conversion_frame.pack_forget()
+        properties_frame.pack_forget()
+    elif screen == "Unit Conversion":
+        info_frame.pack_forget()
+        pil_frame.pack_forget()
+        conversion_frame.pack(pady=20, padx=10)
+        properties_frame.pack_forget()
+    elif screen == "Physicochemical Properties":
+        info_frame.pack_forget()
+        pil_frame.pack_forget()
+        conversion_frame.pack_forget()
+        properties_frame.pack(pady=20, padx=10)
+
+# Info Screen
+info_frame = customtkinter.CTkFrame(master=root)
+label_thanks = customtkinter.CTkLabel(master=info_frame, text="Thank you for using Michael and Stuart's calculator", font=font)
+label_thanks.pack()
+
+label_info = customtkinter.CTkLabel(master=info_frame, text="For more information on how to use it, check out our Github: ")
+label_info.pack()
+
+def button_event():
+    print("button pressed")
+    webbrowser.open("https://github.com/mph759/PIL_project/tree/main")
+
+hyperlink = customtkinter.CTkButton(master=info_frame, 
+                                    text="https://github.com/mph759/PIL_project/tree/main", 
+                                    command=button_event)
+hyperlink.configure(fg_color="transparent",
+                    font=bold_font)
+hyperlink.pack()
+
+
+# PIL synthesis calculator
+pil_frame = customtkinter.CTkFrame(master=root)
+label_pil = customtkinter.CTkLabel(master=pil_frame, text="PIL Synthesis", font=font)
+label_pil.pack()
+
+tabview = customtkinter.CTkTabview(master=pil_frame)
+tabview.pack(padx=5, pady=5)
+
+tabview.add("By PIL")  # add tab at the end
+tabview.add("By Ions")  # add tab at the end
+tabview.set("By PIL")  # set currently visible tab
+
+pil_combobox = customtkinter.CTkComboBox(master=tabview.tab("By PIL"),
+                                     values=["Insert PIL library here"],
+                                     width=200)
+pil_combobox.pack(padx=20, pady=10)
+pil_combobox.set("Red PIL or Blue PIL")  # set initial value
+
+# All ions have their ion weight and not their molecule weight...
+cations = { #needs all them PKA
+    "ethylammonium": ["EA", 46.08, 0.60],
+    "ethanolammonium": ["EtA", 62.08, 0.97],
+    "propylammonium": ["PA", 60.11, 0.99],
+    "butylammonium": ["BA", 74.14, 0.99],
+    "pentylammonium": ["PeA", 88.16, 0.99],
+    "choline": ["Ch", 105.17, 0.66],
+    "diethylamine": ["DEA", 74.14, 0.99],
+    "diethanolamine": ["DEtA", 106.14, 0.99],
+    "triethylamine": ["TEA", 102.19, 0.99],
+    "triethanolamine": ["TEtA", 150.188, 0.99]
+}
+
+anions = { #needs all them PKA
+    "nitrate": ["N", 62.01, 0.50],
+    "formate": ["F", 45.03, 0.80],
+    "acetate": ["A", 59.052, 0.80],
+    "propionate": ["P", 73.08, 0.99],
+    "hexanoate": ["H", 115.158, 0.99],
+    "glycolate": ["G", 75.05, 0.99],
+    "lactate": ["L", 89.08, 0.99],
+    "mesylate": ["MS", 95.1, 0.99],
+    "trifluoroacetate": ["TFA", 113.02, 0.50],
+    "dihydrogenphosphate": ["DHP", 96.99, 0.80]
+}
+
+cations_keys = list(cations.keys())
+anions_keys = list(anions.keys())
+
+choose_cation = customtkinter.CTkComboBox(master=tabview.tab("By Ions"), values=cations_keys)
+choose_cation.pack()
+choose_cation.set("Choose your favourite cation")
+
+choose_anion = customtkinter.CTkComboBox(master=tabview.tab("By Ions"), values=anions_keys)
+choose_anion.pack(pady=10)
+choose_anion.set("Choose your favourite anion")
+
+comb_il_name = None
+comb_il_acronym = None
+comb_il_mass_entry = None
+comb_il_mass_calcb = None
+comb_il_mass_calc = None
+comb_il_mass_cat = None
+comb_il_mass_an = None
+
+def synthesise():
+    global comb_il_name, comb_il_acronym, comb_il_mass_entry, comb_il_mass_calcb, comb_il_mass_cat, comb_il_mass_an
+    if comb_il_name is None:
+        comb_il_name = customtkinter.CTkLabel(master=tabview.tab("By Ions"), font=bold_font)
+        comb_il_name.pack(pady=0)
+    comb_il_name.configure(text=choose_cation.get() + " " + choose_anion.get())
+    
+    if comb_il_acronym is None:
+        comb_il_acronym = customtkinter.CTkLabel(master=tabview.tab("By Ions"), font=bold_font)
+        comb_il_acronym.pack(pady=0)
+    comb_il_acronym.configure(text=cations[choose_cation.get()][0] + anions[choose_anion.get()][0])
+    
+    if comb_il_mass_entry is None:
+        comb_il_mass_entry = customtkinter.CTkEntry(master=tabview.tab("By Ions"), placeholder_text = "Enter final mass")
+        comb_il_mass_entry.pack()
+    
+    if comb_il_mass_calcb is None:
+        comb_il_mass_calcb = customtkinter.CTkButton(master=tabview.tab("By Ions"), text = "Calculate", command=calculate)
+        comb_il_mass_calcb.pack()
+        
+    if comb_il_mass_cat is not None:
+        comb_il_mass_cat.configure(text="")
+    if comb_il_mass_an is not None:
+        comb_il_mass_an.configure(text="")
+        
+def calculate():
+    global comb_il_mass_entry, comb_il_mass_cat, comb_il_mass_an
+    
+    try:
+        cat_mass_value = ((float(comb_il_mass_entry.get()) / 
+                          (cations[choose_cation.get()][1] + anions[choose_anion.get()][1])) * cations[choose_cation.get()][1]) / cations[choose_cation.get()][2]
+        an_mass_value = ((float(comb_il_mass_entry.get()) / 
+                         (cations[choose_cation.get()][1] + anions[choose_anion.get()][1])) * anions[choose_anion.get()][1] ) / anions[choose_anion.get()][2]
+        
+        if comb_il_mass_cat is None and comb_il_mass_an is None:
+            comb_il_mass_cat = customtkinter.CTkLabel(master=tabview.tab("By Ions"), text=f"Mass of Cation: {cat_mass_value:.2f}g", font=font)
+            comb_il_mass_cat.pack()
+            comb_il_mass_an = customtkinter.CTkLabel(master=tabview.tab("By Ions"), text=f"Mass of Anion: {an_mass_value:.2f}g", font=font)
+            comb_il_mass_an.pack()
+        else:
+            comb_il_mass_cat.configure(text=f"Mass of Cation: {cat_mass_value:.2f}g")
+            comb_il_mass_an.configure(text=f"Mass of Anion: {an_mass_value:.2f}g")
+    except ValueError:
+        if comb_il_mass_cat is None:
+            comb_il_mass_cat = customtkinter.CTkLabel(master=tabview.tab("By Ions"), text="Make sure entry is a number!", font=font)
+            comb_il_mass_cat.pack()
+        else:
+            comb_il_mass_cat.configure(text="Make sure entry is a number!")
+        if comb_il_mass_an is not None:
+            comb_il_mass_an.configure(text="")
+
+comb_il_button = customtkinter.CTkButton(master=tabview.tab("By Ions"), text="Synthesise", command=synthesise)
+comb_il_button.pack(pady=10)
+
+
+# mol% to wt% and vice versa
+conversion_frame = customtkinter.CTkFrame(master=root)
+label_conversion = customtkinter.CTkLabel(master=conversion_frame, text="Unit Conversion", font=font)
+label_conversion.pack()
+
+
+# A literature search
+properties_frame = customtkinter.CTkFrame(master=root)
+label_properties = customtkinter.CTkLabel(master=properties_frame, text="Physicochemical Properties", font=font)
+label_properties.pack()
+
+
+def combobox_callback(choice):
+    show_screen(choice)
+
+# Drop down menu
+combobox = customtkinter.CTkComboBox(master=root,
+                                     values=["PIL Synthesis", "Unit Conversion", "Physicochemical Properties", "Info"],
+                                     command=combobox_callback,
+                                     width=500)
+combobox.pack(padx=20, pady=10)
+combobox.set("What do you want to do?")  # set initial value
+
+def on_closing():
+    root.destroy()
+
+# Bind the on_closing function to the window close event
+root.protocol("WM_DELETE_WINDOW", on_closing)
+
+root.mainloop()
