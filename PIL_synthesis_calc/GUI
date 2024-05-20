@@ -8,7 +8,7 @@ root = customtkinter.CTk()
 root.geometry("600x500")
 root.title("PIL Calculator")
 
-# Create a font object
+# Create fonts 
 font = customtkinter.CTkFont(family="Roboto", size=24)
 bold_font = customtkinter.CTkFont(family="Roboto", size=12, weight="bold")
 
@@ -19,23 +19,33 @@ def show_screen(screen):
         pil_frame.pack_forget()
         conversion_frame.pack_forget()
         properties_frame.pack_forget()
+        dilutions_frame.pack_forget()
     elif screen == "PIL Synthesis":
         info_frame.pack_forget()
         pil_frame.pack(pady=20, padx=10)
         conversion_frame.pack_forget()
         properties_frame.pack_forget()
+        dilutions_frame.pack_forget()
     elif screen == "Unit Conversion":
         info_frame.pack_forget()
         pil_frame.pack_forget()
         conversion_frame.pack(pady=20, padx=10)
         properties_frame.pack_forget()
+        dilutions_frame.pack_forget()
     elif screen == "Physicochemical Properties":
         info_frame.pack_forget()
         pil_frame.pack_forget()
         conversion_frame.pack_forget()
         properties_frame.pack(pady=20, padx=10)
+        dilutions_frame.pack_forget()
+    elif screen == "Dilutions":
+        info_frame.pack_forget()
+        pil_frame.pack_forget()
+        conversion_frame.pack_forget()
+        properties_frame.pack_forget()
+        dilutions_frame.pack(pady=20, padx=10)
 
-# Info Screen
+# # Info Screen # #
 info_frame = customtkinter.CTkFrame(master=root)
 label_thanks = customtkinter.CTkLabel(master=info_frame, text="Thank you for using Michael and Stuart's calculator", font=font)
 label_thanks.pack()
@@ -55,59 +65,95 @@ hyperlink.configure(fg_color="transparent",
 hyperlink.pack()
 
 
-# PIL synthesis calculator
+# # PIL synthesis calculator # #
+
 pil_frame = customtkinter.CTkFrame(master=root)
 label_pil = customtkinter.CTkLabel(master=pil_frame, text="PIL Synthesis", font=font)
 label_pil.pack()
 
-tabview = customtkinter.CTkTabview(master=pil_frame)
-tabview.pack(padx=5, pady=5)
+pil_tabview = customtkinter.CTkTabview(master=pil_frame)
+pil_tabview.pack(padx=5, pady=5)
 
-tabview.add("By PIL")  # add tab at the end
-tabview.add("By Ions")  # add tab at the end
-tabview.set("By PIL")  # set currently visible tab
+pil_tabview.add("By PIL")  # add tab at the end
+pil_tabview.add("By Ions")  # add tab at the end
+pil_tabview.set("By PIL")  # set currently visible tab
 
-pil_combobox = customtkinter.CTkComboBox(master=tabview.tab("By PIL"),
+pil_combobox = customtkinter.CTkComboBox(master=pil_tabview.tab("By PIL"),
                                      values=["Insert PIL library here"],
                                      width=200)
 pil_combobox.pack(padx=20, pady=10)
 pil_combobox.set("Red PIL or Blue PIL")  # set initial value
 
-# All ions have their ion weight and not their molecule weight...
 cations = { #needs all them PKA
-    "ethylammonium": ["EA", 46.08, 0.60],
-    "ethanolammonium": ["EtA", 62.08, 0.97],
-    "propylammonium": ["PA", 60.11, 0.99],
-    "butylammonium": ["BA", 74.14, 0.99],
-    "pentylammonium": ["PeA", 88.16, 0.99],
-    "choline": ["Ch", 105.17, 0.66],
-    "diethylamine": ["DEA", 74.14, 0.99],
-    "diethanolamine": ["DEtA", 106.14, 0.99],
-    "triethylamine": ["TEA", 102.19, 0.99],
-    "triethanolamine": ["TEtA", 150.188, 0.99]
+    "ethylammonium": ["EA", 45.08, 0.60],
+    "ethanolammonium": ["EtA", 61.08, 0.97],
+    "propylammonium": ["PA", 59.11, 0.99],
+    "butylammonium": ["BA", 73.14, 0.99],
+    "pentylammonium": ["PeA", 87.16, 0.99],
+    "choline": ["Ch", 104.17, 0.66],
+    "diethylamine": ["DEA", 73.14, 0.99],
+    "diethanolamine": ["DEtA", 105.14, 0.99],
+    "triethylamine": ["TEA", 101.19, 0.99],
+    "triethanolamine": ["TEtA", 149.188, 0.99]
 }
 
 anions = { #needs all them PKA
-    "nitrate": ["N", 62.01, 0.50],
-    "formate": ["F", 45.03, 0.80],
-    "acetate": ["A", 59.052, 0.80],
-    "propionate": ["P", 73.08, 0.99],
-    "hexanoate": ["H", 115.158, 0.99],
-    "glycolate": ["G", 75.05, 0.99],
-    "lactate": ["L", 89.08, 0.99],
-    "mesylate": ["MS", 95.1, 0.99],
-    "trifluoroacetate": ["TFA", 113.02, 0.50],
-    "dihydrogenphosphate": ["DHP", 96.99, 0.80]
+    "nitrate": ["N", 61.01, 0.50],
+    "formate": ["F", 44.03, 0.80],
+    "acetate": ["A", 58.052, 0.80],
+    "propionate": ["P", 72.08, 0.99],
+    "hexanoate": ["H", 114.158, 0.99],
+    "glycolate": ["G", 74.05, 0.99],
+    "lactate": ["L", 88.08, 0.99],
+    "mesylate": ["MS", 94.1, 0.99],
+    "trifluoroacetate": ["TFA", 112.02, 0.50],
+    "dihydrogenphosphate": ["DHP", 95.99, 0.80]
+}
+
+ils = {
+    "EAN": [108.10],
+    "EAA": [105.14],
+    "EAF": [91.11],
+    "EAG": [121.13],
+    "EAL": [135.16],
+    "EAP": [141.18],
+    "EAH": [161.23],
+    "EATFA": [159.1],
+    "EADHP": [143.07],
+    "P66614 EtCatB": [764.97],
+    "P44414 EtCatB": [680.97],
+    "C12C12Im BOB": [591],
+    "C12C1C12Im BOB": [605],
+    "C12C1C1Im BOB": [451],
+    "C12C1Im BOB": [437],
+    "d-C10C1Im BOB": [430],
+    "H-C10C1Im BOB": [409],
+    "d-C6C1Im BOB": [366],
+    "H-C6C1Im BOB": [353],
+}
+
+solvents = {
+    "water": [18],
+    "methanol": [32.04],
+    "ethanol": [46.07],
+    "dimethylsulfoxide": [78.13],
+    "propylene carbonate": [102.09],
 }
 
 cations_keys = list(cations.keys())
 anions_keys = list(anions.keys())
+ils_keys = list(ils.keys())
+solvents_keys = list(solvents.keys())
 
-choose_cation = customtkinter.CTkComboBox(master=tabview.tab("By Ions"), values=cations_keys)
+choose_cation = customtkinter.CTkComboBox(master=pil_tabview.tab("By Ions"), 
+                                          values=cations_keys, 
+                                          width=200)
 choose_cation.pack()
 choose_cation.set("Choose your favourite cation")
 
-choose_anion = customtkinter.CTkComboBox(master=tabview.tab("By Ions"), values=anions_keys)
+choose_anion = customtkinter.CTkComboBox(master=pil_tabview.tab("By Ions"), 
+                                         values=anions_keys, 
+                                         width=200)
 choose_anion.pack(pady=10)
 choose_anion.set("Choose your favourite anion")
 
@@ -122,21 +168,23 @@ comb_il_mass_an = None
 def synthesise():
     global comb_il_name, comb_il_acronym, comb_il_mass_entry, comb_il_mass_calcb, comb_il_mass_cat, comb_il_mass_an
     if comb_il_name is None:
-        comb_il_name = customtkinter.CTkLabel(master=tabview.tab("By Ions"), font=bold_font)
+        comb_il_name = customtkinter.CTkLabel(master=pil_tabview.tab("By Ions"), font=bold_font)
         comb_il_name.pack(pady=0)
     comb_il_name.configure(text=choose_cation.get() + " " + choose_anion.get())
     
     if comb_il_acronym is None:
-        comb_il_acronym = customtkinter.CTkLabel(master=tabview.tab("By Ions"), font=bold_font)
+        comb_il_acronym = customtkinter.CTkLabel(master=pil_tabview.tab("By Ions"), font=bold_font)
         comb_il_acronym.pack(pady=0)
     comb_il_acronym.configure(text=cations[choose_cation.get()][0] + anions[choose_anion.get()][0])
     
     if comb_il_mass_entry is None:
-        comb_il_mass_entry = customtkinter.CTkEntry(master=tabview.tab("By Ions"), placeholder_text = "Enter final mass")
+        comb_il_mass_entry = customtkinter.CTkEntry(master=pil_tabview.tab("By Ions"), placeholder_text = "Enter final mass")
         comb_il_mass_entry.pack()
     
     if comb_il_mass_calcb is None:
-        comb_il_mass_calcb = customtkinter.CTkButton(master=tabview.tab("By Ions"), text = "Calculate", command=calculate)
+        comb_il_mass_calcb = customtkinter.CTkButton(master=pil_tabview.tab("By Ions"), 
+                                                     text = "Calculate", 
+                                                     command=calculate)
         comb_il_mass_calcb.pack()
         
     if comb_il_mass_cat is not None:
@@ -154,35 +202,299 @@ def calculate():
                          (cations[choose_cation.get()][1] + anions[choose_anion.get()][1])) * anions[choose_anion.get()][1] ) / anions[choose_anion.get()][2]
         
         if comb_il_mass_cat is None and comb_il_mass_an is None:
-            comb_il_mass_cat = customtkinter.CTkLabel(master=tabview.tab("By Ions"), text=f"Mass of Cation: {cat_mass_value:.2f}g", font=font)
+            comb_il_mass_cat = customtkinter.CTkLabel(master=pil_tabview.tab("By Ions"), 
+                                                      text=f"Mass of Cation: {cat_mass_value:.2f}g", 
+                                                      font=font)
             comb_il_mass_cat.pack()
-            comb_il_mass_an = customtkinter.CTkLabel(master=tabview.tab("By Ions"), text=f"Mass of Anion: {an_mass_value:.2f}g", font=font)
+            comb_il_mass_an = customtkinter.CTkLabel(master=pil_tabview.tab("By Ions"), 
+                                                     text=f"Mass of Anion: {an_mass_value:.2f}g", 
+                                                     font=font)
             comb_il_mass_an.pack()
         else:
             comb_il_mass_cat.configure(text=f"Mass of Cation: {cat_mass_value:.2f}g")
             comb_il_mass_an.configure(text=f"Mass of Anion: {an_mass_value:.2f}g")
     except ValueError:
         if comb_il_mass_cat is None:
-            comb_il_mass_cat = customtkinter.CTkLabel(master=tabview.tab("By Ions"), text="Make sure entry is a number!", font=font)
+            comb_il_mass_cat = customtkinter.CTkLabel(master=pil_tabview.tab("By Ions"), 
+                                                      text="Make sure entry is a number!", 
+                                                      font=font)
             comb_il_mass_cat.pack()
         else:
             comb_il_mass_cat.configure(text="Make sure entry is a number!")
         if comb_il_mass_an is not None:
             comb_il_mass_an.configure(text="")
 
-comb_il_button = customtkinter.CTkButton(master=tabview.tab("By Ions"), text="Synthesise", command=synthesise)
+comb_il_button = customtkinter.CTkButton(master=pil_tabview.tab("By Ions"), 
+                                         text="Synthesise", 
+                                         command=synthesise)
 comb_il_button.pack(pady=10)
 
 
-# mol% to wt% and vice versa
+# # Unit conversions # #
+
 conversion_frame = customtkinter.CTkFrame(master=root)
-label_conversion = customtkinter.CTkLabel(master=conversion_frame, text="Unit Conversion", font=font)
+label_conversion = customtkinter.CTkLabel(master=conversion_frame, text="Unit Conversion", 
+                                          font=font)
 label_conversion.pack()
+
+conversion_tabview = customtkinter.CTkTabview(master=conversion_frame)
+conversion_tabview.pack(padx=5, pady=5)
+
+conversion_tabview.add("wt% to mol%")
+conversion_tabview.add("mol% to wt%")
+conversion_tabview.set("wt% to mol%")
+
+# # wt% to mol% calculation # #
+
+display_il_molperc_conv1 = None
+display_solv_molperc_conv1 = None
+
+def wtperc_molperc():
+    global display_il_molperc_conv1, display_solv_molperc_conv1
+    wtperc_il_conv1 = float(il_wtperc_conv1.get())
+    mol_il_conv1 = wtperc_il_conv1/ils[choose_il_conv1.get()][0]
+    mol_solv_conv1 = (100-wtperc_il_conv1)/solvents[choose_solv_conv1.get()][0]
+    mol_sum_conv1 = mol_il_conv1 + mol_solv_conv1
+    il_molperc_conv1 = (mol_il_conv1/mol_sum_conv1)*100
+    solv_molperc_conv1 = 100-il_molperc_conv1
+    
+    if display_il_molperc_conv1 is None and display_solv_molperc_conv1 is None:
+        display_il_molperc_conv1 = customtkinter.CTkLabel(master=conversion_tabview.tab("wt% to mol%"), 
+                                                          text=f"IL: {il_molperc_conv1:.2f}mol%", 
+                                                          font=font)
+        display_il_molperc_conv1.pack()
+        display_solv_molperc_conv1 = customtkinter.CTkLabel(master=conversion_tabview.tab("wt% to mol%"), 
+                                                            text=f"Solvent: {solv_molperc_conv1:.2f}mol%", 
+                                                            font=font)
+        display_solv_molperc_conv1.pack()
+    else:
+        display_il_molperc_conv1.configure(text=f"IL: {il_molperc_conv1:.2f}mol%")
+        display_solv_molperc_conv1.configure(text=f"Solvent: {solv_molperc_conv1:.2f}mol%")
+
+choose_il_conv1 = customtkinter.CTkComboBox(master=conversion_tabview.tab("wt% to mol%"), 
+                                            values=ils_keys, 
+                                            width=150)
+choose_il_conv1.pack()
+choose_il_conv1.set("Choose an IL")
+
+choose_solv_conv1 = customtkinter.CTkComboBox(master=conversion_tabview.tab("wt% to mol%"), 
+                                              values=solvents_keys, 
+                                              width=150)
+choose_solv_conv1.pack()
+choose_solv_conv1.set("Choose a solvent")
+
+il_wtperc_conv1 = customtkinter.CTkEntry(master=conversion_tabview.tab("wt% to mol%"), placeholder_text = "Enter IL wt%")
+il_wtperc_conv1.pack()
+
+conv1_button = customtkinter.CTkButton(master=conversion_tabview.tab("wt% to mol%"), 
+                                       text="Calculate", 
+                                       command=wtperc_molperc)
+conv1_button.pack(pady=10)
+
+
+
+
+
+# # mol% to wt% # #
+
+display_il_wtperc_conv2 = None
+display_solv_wtperc_conv2 = None
+
+def molperc_wtperc():
+    global display_il_wtperc_conv2, display_solv_wtperc_conv2 
+    molperc_il_conv2 = float(il_molperc_conv2.get())
+    wt_il_conv2 = molperc_il_conv2 * ils[choose_il_conv2.get()][0]
+    wt_solv_conv2 = (100-molperc_il_conv2) * solvents[choose_solv_conv2.get()][0]
+    wt_sum_conv2 = wt_il_conv2 + wt_solv_conv2
+    il_wtperc_conv2 = (wt_il_conv2/wt_sum_conv2)*100
+    solv_wtperc_conv2 = 100-il_wtperc_conv2
+    
+    if display_il_wtperc_conv2 is None and display_solv_wtperc_conv2 is None:
+        display_il_wtperc_conv2 = customtkinter.CTkLabel(master=conversion_tabview.tab("mol% to wt%"), 
+                                                         text=f"IL: {il_wtperc_conv2:.2f}wt%", 
+                                                         font=font)
+        display_il_wtperc_conv2.pack()
+        display_solv_wtperc_conv2 = customtkinter.CTkLabel(master=conversion_tabview.tab("mol% to wt%"), 
+                                                           text=f"Solvent: {solv_wtperc_conv2:.2f}wt%", 
+                                                           font=font)
+        display_solv_wtperc_conv2.pack()
+    else:
+        display_il_wtperc_conv2.configure(text=f"IL: {il_molperc_conv1:.2f}wt%")
+        display_solv_wtperc_conv2.configure(text=f"Solvent: {solv_molperc_conv1:.2f}wt%")
+
+choose_il_conv2 = customtkinter.CTkComboBox(master=conversion_tabview.tab("mol% to wt%"), 
+                                            values=ils_keys, 
+                                            width=150)
+choose_il_conv2.pack()
+choose_il_conv2.set("Choose an IL")
+
+choose_solv_conv2 = customtkinter.CTkComboBox(master=conversion_tabview.tab("mol% to wt%"), 
+                                              values=solvents_keys, 
+                                              width=150)
+choose_solv_conv2.pack()
+choose_solv_conv2.set("Choose a solvent")
+
+il_molperc_conv2 = customtkinter.CTkEntry(master=conversion_tabview.tab("mol% to wt%"), placeholder_text = "Enter IL mol%")
+il_molperc_conv2.pack()
+
+conv2_button = customtkinter.CTkButton(master=conversion_tabview.tab("mol% to wt%"), 
+                                       text="Calculate", 
+                                       command=molperc_wtperc)
+conv2_button.pack(pady=10)
+
+# # Dilutions # # 
+
+dilutions_frame = customtkinter.CTkFrame(master=root)
+
+label_dilutions = customtkinter.CTkLabel(master=dilutions_frame, 
+                                          text="Dilutions", 
+                                          font=font)
+label_dilutions.pack()
+
+def water_cont():
+    water_cont_mol2mol.delete(0, 'end')
+    if il_water_content.get() == "yes":
+        water_cont_mol2mol.configure(state="normal", placeholder_text = "Enter water content wt%")
+        water_cont_wt2mol.configure(state="normal", placeholder_text = "Enter water content wt%")
+        water_cont_wt2wt.configure(state="normal", placeholder_text = "Enter water content wt%")
+    else:
+        water_cont_mol2mol.configure(state="disabled")
+        water_cont_wt2mol.configure(state="disabled")
+        water_cont_wt2wt.configure(state="disabled")
+
+il_water_content = customtkinter.CTkSwitch(master=dilutions_frame,
+                                          text="Do I have IL water content?",
+                                          command=water_cont,
+                                          onvalue="yes",
+                                          offvalue="no")
+il_water_content.pack()
+
+dilutions_tabview = customtkinter.CTkTabview(master=dilutions_frame)
+dilutions_tabview.pack(padx=5, pady=5)
+dilutions_tabview.add("wt%-mol%")
+dilutions_tabview.add("mol%-mol%")
+dilutions_tabview.add("wt%-wt%")
+dilutions_tabview.set("wt%-mol%")
+
+# # wt%-mol% dilution # #
+
+display_mass_solv_add = None
+
+def wt2mol_dilution():
+    global display_mass_solv_add
+    if il_water_content.get() == "yes":
+        mass_h2o = (float(water_cont_wt2mol.get())/100) * float(start_mass_wt2mol.get())
+        mass_il = float(start_mass_wt2mol.get())-mass_h2o
+        mol_h2o = float(water_cont_wt2mol.get())/18
+        mol_il = mass_il/ils[choose_il_wt2mol.get()][0]
+        total_final_mol = mol_il/(float(target_mol_wt2mol.get())/100)
+        mol_add = (total_final_mol-mol_il-mol_h2o)
+        mass_add = mol_add*solvents[choose_solv_wt2mol.get()][0]
+        if display_mass_solv_add is None:
+            display_mass_solv_add = customtkinter.CTkLabel(master=dilutions_tabview.tab("wt%-mol%"), 
+                                                           text=f"Solvent: {mass_add:.2f} g", 
+                                                           font=font)
+            display_mass_solv_add.pack()
+    else:
+       print("fail") #do this calculation
+
+choose_il_wt2mol= customtkinter.CTkComboBox(master=dilutions_tabview.tab("wt%-mol%"),
+                                            values=ils_keys,
+                                            width=150)
+choose_il_wt2mol.pack()
+choose_il_wt2mol.set("Choose an IL")
+
+choose_solv_wt2mol = customtkinter.CTkComboBox(master=dilutions_tabview.tab("wt%-mol%"), 
+                                              values=solvents_keys, 
+                                              width=150)
+choose_solv_wt2mol.pack()
+choose_solv_wt2mol.set("Choose a solvent")
+
+water_cont_wt2mol = customtkinter.CTkEntry(master=dilutions_tabview.tab("wt%-mol%"), 
+                                          placeholder_text = "Enter water content wt%",
+                                           width=175,
+                                         state="disabled")
+water_cont_wt2mol.pack()
+
+target_mol_wt2mol = customtkinter.CTkEntry(master=dilutions_tabview.tab("wt%-mol%"), placeholder_text = "Target mol% concentration", width=175)
+target_mol_wt2mol.pack()
+
+start_mass_wt2mol = customtkinter.CTkEntry(master=dilutions_tabview.tab("wt%-mol%"), 
+                                                        placeholder_text = "Starting IL Mass",
+                                                        width=175)
+start_mass_wt2mol.pack()
+
+
+
+dilute_button_wt2mol = customtkinter.CTkButton(master=dilutions_tabview.tab("wt%-mol%"), 
+                                       text="Dilute",
+                                        command=wt2mol_dilution)
+dilute_button_wt2mol.pack(pady=10)
+
+
+# # mol%-mol% dilutions # #
+        
+#def dilute():
+    #if choose_solv_conv3.get() == "water":
+        #do the dilution for water
+        
+        
+        #do the dilution without compensation
+        
+choose_il_mol2mol= customtkinter.CTkComboBox(master=dilutions_tabview.tab("mol%-mol%"),
+                                            values=ils_keys,
+                                            width=150)
+choose_il_mol2mol.pack()
+choose_il_mol2mol.set("Choose an IL")
+
+choose_solv_mol2mol= customtkinter.CTkComboBox(master=dilutions_tabview.tab("mol%-mol%"), 
+                                              values=solvents_keys, 
+                                              width=150,
+                                              command=water_cont)
+choose_solv_mol2mol.pack()
+choose_solv_mol2mol.set("Choose a solvent")
+
+water_cont_mol2mol = customtkinter.CTkEntry(master=dilutions_tabview.tab("mol%-mol%"), 
+                                          placeholder_text = "Enter water content wt%",
+                                            width=175,
+                                         state="disabled")
+water_cont_mol2mol.pack()
+
+dilute_button_mol2mol = customtkinter.CTkButton(master=dilutions_tabview.tab("mol%-mol%"), 
+                                       text="Dilute")
+dilute_button_mol2mol.pack(pady=10)
+
+# # wt%-wt% dilutions # #
+
+choose_il_wt2wt= customtkinter.CTkComboBox(master=dilutions_tabview.tab("wt%-wt%"),
+                                            values=ils_keys,
+                                            width=150)
+choose_il_wt2wt.pack()
+choose_il_wt2wt.set("Choose an IL")
+
+choose_solv_wt2wt= customtkinter.CTkComboBox(master=dilutions_tabview.tab("wt%-wt%"), 
+                                              values=solvents_keys, 
+                                              width=150,
+                                              command=water_cont)
+choose_solv_wt2wt.pack()
+choose_solv_wt2wt.set("Choose a solvent")
+
+water_cont_wt2wt = customtkinter.CTkEntry(master=dilutions_tabview.tab("wt%-wt%"), 
+                                          placeholder_text = "Enter water content wt%",
+                                          width=175,
+                                         state="disabled")
+water_cont_wt2wt.pack()
+
+dilute_button_wt2wt = customtkinter.CTkButton(master=dilutions_tabview.tab("wt%-wt%"), 
+                                       text="Dilute")
+dilute_button_wt2wt.pack(pady=10)
 
 
 # A literature search
 properties_frame = customtkinter.CTkFrame(master=root)
-label_properties = customtkinter.CTkLabel(master=properties_frame, text="Physicochemical Properties", font=font)
+label_properties = customtkinter.CTkLabel(master=properties_frame, 
+                                          text="Physicochemical Properties", 
+                                          font=font)
 label_properties.pack()
 
 
@@ -191,7 +503,11 @@ def combobox_callback(choice):
 
 # Drop down menu
 combobox = customtkinter.CTkComboBox(master=root,
-                                     values=["PIL Synthesis", "Unit Conversion", "Physicochemical Properties", "Info"],
+                                     values=["PIL Synthesis", 
+                                             "Unit Conversion", 
+                                             "Dilutions", 
+                                             "Physicochemical Properties", 
+                                             "Info"],
                                      command=combobox_callback,
                                      width=500)
 combobox.pack(padx=20, pady=10)
